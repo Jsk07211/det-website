@@ -308,7 +308,7 @@ const DET_GROUPS = [
                     <a class="det-link" href="${it.url}" target="_blank" rel="noopener">
                       <div style="display:grid;gap:4px">
                         <span class="det-link-title">${it.title}</span>
-                        ${it.description ? `<div class="det-link-desc">${it.description}</div>` : ""}
+                        ${it.description ? `<div class="det-link-desc">${formatDescription(it.description)}</div>` : ""}
                       </div>
                       ${it.tag ? `<span class="det-tag">${it.tag}</span>` : ""}
                     </a>
