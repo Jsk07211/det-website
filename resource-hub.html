@@ -58,7 +58,9 @@ body{margin:0;background:#fff;color:var(--det-text);font-family:ui-sans-serif,sy
 .det-link{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--det-border);border-radius:12px;text-decoration:none;color:inherit;transition:box-shadow .18s ease,transform .18s ease,border-color .18s ease;background:#fff}
 .det-link:hover{box-shadow:0 8px 20px rgba(2,6,23,.06);border-color:#d1d5db;transform:translateY(-1px)}
 .det-link-title{font-weight:500}
-.det-link-desc{ font-size:12px; color:#6b7280; margin-top:4px; line-height:1.45 }
+.det-link-row{ display:grid; gap:4px; }
+.det-link{ display:flex; align-items:center; justify-content:space-between; }
+.det-link-desc{ font-size:12px; color:#6b7280; line-height:1.45; }
 .det-tag{font-size:12px;padding:4px 8px;border-radius:999px;background:rgba(112, 225, 25, 0.12);color:#16a34a;border:1px solid rgba(6,182,212,.25);white-space:nowrap}
 .det-footnote{text-align:center;color:#9ca3af;font-size:12px;margin-top:24px}
 
@@ -302,13 +304,13 @@ const DET_GROUPS = [
                     ${si === 0 ? '' : 'hidden'}>
                   ${Array.isArray(s.description) ? `<div class="det-panel-description">${formatDescription(s.description)}</div>` : ""}
                   ${(s.items || []).map(it => `
-                    <a class="det-link" href="${it.url}" target="_blank" rel="noopener">
-                      <div style="display:grid;gap:4px">
+                    <div class="det-link-row">
+                      <a class="det-link" href="${it.url}" target="_blank" rel="noopener">
                         <span class="det-link-title">${it.title}</span>
-                        ${it.description ? `<div class="det-link-desc">${it.description}</div>` : ""}
-                      </div>
-                      ${it.tag ? `<span class="det-tag">${it.tag}</span>` : ""}
-                    </a>
+                        ${it.tag ? `<span class="det-tag">${it.tag}</span>` : ""}
+                      </a>
+                      ${it.description ? `<div class="det-link-desc" role="note">${it.description}</div>` : ""}
+                    </div>
                   `).join("")}
                 </div>
               </div>
