@@ -241,10 +241,21 @@ const DET_GROUPS = [
     curators: [
       { name: "Zhenni Wu", linkedin: "https://www.linkedin.com/in/zhenniwu/" }
     ],
-    items:[
-    { title:"Foundations of Data Storage", url:"https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html", tag:"Blog" },
-    { title:"Columnar Storage Formats", url:"https://seattledataguy.substack.com/p/back-to-the-basics-what-is-columnar", tag:"Blog" }
-  ]}
+    subsections: [
+      {
+        key: "foundations-of-data-storage",
+        title: "Foundations of Data Storage",
+        description: [
+          "• Object Stores: S3, GCS, Azure Blob, MinIO",
+          "• Block vs. File vs. Object Storage: When and why they matter",
+          "Object storage sits at the heart of modern data platforms, but its design and tradeoffs aren't always intuitive when you're first getting started.",
+          "We selected these three resources to give DET members a well-rounded and practical understanding of object storage, from real-world use cases to architectural principles and design tradeoffs across storage paradigms."
+        ],
+        items: [
+          { title: "An official walkthrough of Amazon S3 concepts", url: "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html", tag: "Blog" }
+        ]
+      },
+    ]}
 ];
 
 // ===== (3) Render accordion =====
@@ -258,14 +269,42 @@ const DET_GROUPS = [
         ${g.intro ? `<span class="det-trigger-intro">${g.intro}</span>` : ""}
         <span class="det-trigger-icon" aria-hidden="true">${index === 0 ? '−' : '+'}</span>
       </button>
-      <div class="det-panel" id="panel-${g.key}" role="region" aria-labelledby="trigger-${g.key}" ${index === 0 ? '' : 'hidden'}>
-        ${g.description ? `<div class="det-panel-description">${formatDescription(g.description)}</div>` : ""}
-        ${g.items.map(it => `
-          <a class="det-link" href="${it.url}" target="_blank" rel="noopener">
-            <span class="det-link-title">${it.title}</span>
-            ${it.tag ? `<span class="det-tag">${it.tag}</span>` : ""}
-          </a>
-        `).join("")}
+        ${g.subsections ? `
+          <div class="det-accordion" id="detAccordionInner-${g.key}">
+            ${g.subsections.map((s, si) => `
+              <div class="det-item" data-subkey="${s.key}">
+                <button class="det-trigger"
+                        aria-expanded="${si === 0 ? 'true' : 'false'}"
+                        aria-controls="panel-${g.key}-${s.key}"
+                        id="trigger-${g.key}-${s.key}">
+                  <span class="det-trigger-title">${s.title}</span>
+                  ${s.description ? `<span class="det-trigger-intro">${typeof s.description === 'string' ? s.description : ''}</span>` : ""}
+                  <span class="det-trigger-icon" aria-hidden="true">${si === 0 ? '−' : '+'}</span>
+                </button>
+                <div class="det-panel"
+                    id="panel-${g.key}-${s.key}"
+                    role="region"
+                    aria-labelledby="trigger-${g.key}-${s.key}"
+                    ${si === 0 ? '' : 'hidden'}>
+                  ${Array.isArray(s.description) ? `<div class="det-panel-description">${formatDescription(s.description)}</div>` : ""}
+                  ${(s.items || []).map(it => `
+                    <a class="det-link" href="${it.url}" target="_blank" rel="noopener">
+                      <span class="det-link-title">${it.title}</span>
+                      ${it.tag ? `<span class="det-tag">${it.tag}</span>` : ""}
+                    </a>
+                  `).join("")}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        ` : `
+          ${(g.items || []).map(it => `
+            <a class="det-link" href="${it.url}" target="_blank" rel="noopener">
+              <span class="det-link-title">${it.title}</span>
+              ${it.tag ? `<span class="det-tag">${it.tag}</span>` : ""}
+            </a>
+          `).join("")}
+        `}
         ${formatCurators(g.curators)}
       </div>
     </div>
@@ -276,13 +315,28 @@ const DET_GROUPS = [
     const btn = e.target && e.target.closest ? e.target.closest(".det-trigger") : null;
     if (!btn || !root.contains(btn)) return;
     e.preventDefault();
-    e.stopPropagation();
-    const panel = btn.nextElementSibling; // next sibling is the panel
-    const expanded = btn.getAttribute("aria-expanded") === "true";
-    btn.setAttribute("aria-expanded", String(!expanded));
-    if (panel) panel.hidden = expanded;
+
+    const container = btn.closest(".det-accordion"); // <-- scope here
+    const panel = document.getElementById(btn.getAttribute("aria-controls"));
     const icon = btn.querySelector(".det-trigger-icon");
-    if (icon) icon.textContent = expanded ? "+" : "−";
+
+    // close only siblings inside the same container
+    if (container) {
+      container.querySelectorAll(':scope > .det-item > .det-trigger[aria-expanded="true"]').forEach(t => {
+        if (t === btn) return;
+        t.setAttribute("aria-expanded", "false");
+        const sibIcon = t.querySelector(".det-trigger-icon");
+        if (sibIcon) sibIcon.textContent = "+";
+        const sibPanel = document.getElementById(t.getAttribute("aria-controls"));
+        if (sibPanel) sibPanel.hidden = true;
+      });
+    }
+
+    // toggle current
+    const isOpen = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-expanded", String(!isOpen));
+    if (icon) icon.textContent = isOpen ? "+" : "−";
+    if (panel) panel.hidden = isOpen;
   });
 
   // Keyboard accessibility: toggle on Enter/Space when focusing the trigger
