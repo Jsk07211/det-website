@@ -305,13 +305,18 @@ const DET_GROUPS = [
                     ${si === 0 ? '' : 'hidden'}>
                   ${Array.isArray(s.description) ? `<div class="det-panel-description">${formatDescription(s.description)}</div>` : ""}
                   ${(s.items || []).map(it => `
-                    <a class="det-link" href="${it.url}" target="_blank" rel="noopener">
-                      <div style="display:grid;gap:4px">
-                        <span class="det-link-title">${it.title}</span>
-                        ${it.description ? `<div class="det-link-desc">${it.description}</div>` : ""}
+                    <div class="det-item-box">
+                      <div class="det-item-top">
+                        <a class="det-link" href="${it.url}" target="_blank" rel="noopener">
+                          <span class="det-link-title">${it.title}</span>
+                        </a>
+                        ${it.tag ? `<span class="det-tag">${it.tag}</span>` : ""}
                       </div>
-                      ${it.tag ? `<span class="det-tag">${it.tag}</span>` : ""}
-                    </a>
+                      ${it.description ? `
+                        <div class="det-link-desc" role="note">
+                          ${Array.isArray(it.description) ? formatDescription(it.description) : it.description}
+                        </div>` : ""}
+                    </div>
                   `).join("")}
                 </div>
               </div>
