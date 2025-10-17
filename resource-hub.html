@@ -488,19 +488,18 @@ const DET_GROUPS = [
     </div>
   `).join("");
 
+  const SCROLL_OFFSET = 96; // px from top of viewport; tweak to taste
+
   root.addEventListener("click", (e) => {
     const btn = e.target && e.target.closest ? e.target.closest(".det-trigger") : null;
     if (!btn || !root.contains(btn)) return;
     e.preventDefault();
 
-    // remember where the button sits before layout changes
-    const prevTop = btn.getBoundingClientRect().top;
-
     const container = btn.closest(".det-accordion");
     const panel = document.getElementById(btn.getAttribute("aria-controls"));
     const icon = btn.querySelector(".det-trigger-icon");
 
-    // close only siblings inside the same container
+    // close only siblings within the same accordion
     if (container) {
       container.querySelectorAll(':scope > .det-item > .det-trigger[aria-expanded="true"]').forEach(t => {
         if (t === btn) return;
@@ -518,10 +517,11 @@ const DET_GROUPS = [
     if (icon) icon.textContent = isOpen ? "+" : "−";
     if (panel) panel.hidden = isOpen;
 
-    // compensate any layout shift so the button stays where it was
-    const newTop = btn.getBoundingClientRect().top;
-    const delta = newTop - prevTop;
-    if (Math.abs(delta) > 1) window.scrollBy(0, delta);
+    // if we just OPENED, bring the header near the top
+    if (!isOpen) {
+      const targetY = window.scrollY + btn.getBoundingClientRect().top - SCROLL_OFFSET;
+      window.scrollTo({ top: Math.max(targetY, 0), behavior: "smooth" });
+    }
   });
 
   // Keyboard accessibility: toggle on Enter/Space when focusing the trigger
