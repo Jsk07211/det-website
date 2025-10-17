@@ -498,8 +498,6 @@ const DET_GROUPS = [
     if (panel) panel.hidden = true;
   });
 
-  const SCROLL_OFFSET = 96; // px from top of viewport; tweak to taste
-
   root.addEventListener("click", (e) => {
     const btn = e.target && e.target.closest ? e.target.closest(".det-trigger") : null;
     if (!btn || !root.contains(btn)) return;
@@ -526,12 +524,6 @@ const DET_GROUPS = [
     btn.setAttribute("aria-expanded", String(!isOpen));
     if (icon) icon.textContent = isOpen ? "+" : "−";
     if (panel) panel.hidden = isOpen;
-
-    // if we just OPENED, bring the header near the top
-    if (!isOpen) {
-      const targetY = window.scrollY + btn.getBoundingClientRect().top - SCROLL_OFFSET;
-      window.scrollTo({ top: Math.max(targetY, 0), behavior: "smooth" });
-    }
   });
 
   // Keyboard accessibility: toggle on Enter/Space when focusing the trigger
