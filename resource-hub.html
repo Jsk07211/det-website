@@ -488,6 +488,31 @@ const DET_GROUPS = [
     </div>
   `).join("");
 
+  // --- Drop-in: force all accordion levels closed on initial render ---
+  (function () {
+    const original = window.renderAccordion;
+    if (typeof original !== "function") return;
+
+    window.renderAccordion = function () {
+      // run your original renderer
+      original.apply(this, arguments);
+
+      // then force-close all panels/icons everywhere
+      const root = document.getElementById("detAccordion");
+      if (!root) return;
+
+      root.querySelectorAll(".det-trigger").forEach((btn) => {
+        btn.setAttribute("aria-expanded", "false");
+        const icon = btn.querySelector(".det-trigger-icon");
+        if (icon) icon.textContent = "+";
+
+        const panelId = btn.getAttribute("aria-controls");
+        const panel = panelId ? document.getElementById(panelId) : null;
+        if (panel) panel.hidden = true;
+      });
+    };
+  })();
+
   const SCROLL_OFFSET = 96; // px from top of viewport; tweak to taste
 
   root.addEventListener("click", (e) => {
