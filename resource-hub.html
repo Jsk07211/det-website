@@ -488,13 +488,15 @@ const DET_GROUPS = [
     </div>
   `).join("");
 
-  // Accordion behavior (toggle each section independently)
   root.addEventListener("click", (e) => {
     const btn = e.target && e.target.closest ? e.target.closest(".det-trigger") : null;
     if (!btn || !root.contains(btn)) return;
     e.preventDefault();
 
-    const container = btn.closest(".det-accordion"); // <-- scope here
+    // remember where the button sits before layout changes
+    const prevTop = btn.getBoundingClientRect().top;
+
+    const container = btn.closest(".det-accordion");
     const panel = document.getElementById(btn.getAttribute("aria-controls"));
     const icon = btn.querySelector(".det-trigger-icon");
 
@@ -515,6 +517,11 @@ const DET_GROUPS = [
     btn.setAttribute("aria-expanded", String(!isOpen));
     if (icon) icon.textContent = isOpen ? "+" : "−";
     if (panel) panel.hidden = isOpen;
+
+    // compensate any layout shift so the button stays where it was
+    const newTop = btn.getBoundingClientRect().top;
+    const delta = newTop - prevTop;
+    if (Math.abs(delta) > 1) window.scrollBy(0, delta);
   });
 
   // Keyboard accessibility: toggle on Enter/Space when focusing the trigger
